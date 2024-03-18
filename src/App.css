@@ -1,0 +1,61 @@
+.line_content{
+  border: 1px solid black;
+}
+
+.sidebar{
+  background-color: #120a2d;
+  color: rgb(233, 233, 233);
+  min-height: 800px;
+}
+
+.sidebar h3{
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: 4px;
+}
+
+.sidebar ul{
+  list-style: none;
+  text-align: left;
+}
+
+.sidebar li{
+  border: 1px solid black;
+  /* padding: 20px; */
+ 
+}
+
+.sidebar li a{
+  text-decoration: none;
+  color: rgb(233, 233, 233);
+  display: block;
+  border: 1px solid black;
+  padding: 20px;
+  font-size: 15px;
+  letter-spacing: 3px;
+}
+
+.sidebar li a:hover{
+  background-color: #1b0e45;
+}
+
+.content{
+  background-color: white;
+}
+
+.content h3{
+font-size: 20px;
+letter-spacing: 2px;
+text-align: center;
+}
+
+.card img{
+  height: 200px;
+  object-fit: cover;
+}
+
+.graphcard
+{
+  background-color: #EEEEEE;
+  border-radius: 30px;
+}
