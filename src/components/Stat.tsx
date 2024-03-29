@@ -8,7 +8,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-
+import moment from "moment";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -20,7 +20,8 @@ ChartJS.register(
 );
 
 import { Line } from "react-chartjs-2";
-
+import axios from "axios";
+import { useEffect, useState } from "react";
 const generateOptions = (yAxisTitle: string) => ({
   responsive: true,
   plugins: {
@@ -44,9 +45,34 @@ export const option_lamp = generateOptions("lamp");
 export const option_fan = generateOptions("Fan");
 export const option_co2 = generateOptions("CO2");
 
+const processDeviceStat = (rawData: any[]) => {
+  const dates = rawData.map((item) =>
+    moment(item.updatedAt).format("YYYY-MM-DD HH:mm:ss")
+  );
+  const Temp = rawData.map((item) => item.Temp);
+  const pH = rawData.map((item) => item.pH);
+  const LampTime = rawData.map((item) => item.LampTime);
+  const FanTime = rawData.map((item) => item.FanTime);
+  const CO2Time = rawData.map((item) => item.CO2Time);
+  // console.log(power.slice(1, 10));
+  return { dates, Temp, pH, LampTime, FanTime, CO2Time };
+};
+
 function Stat() {
-  const generateData = (label: string, dataPoint: Object) => ({
-    labels: [1, 2, 3, 4, 5],
+  const [deviceStat, setDeviceStat] = useState([]);
+
+  const deviceGet = async () => {
+    axios
+      .get("https://aquascape-api.vercel.app/device/getAll")
+      .then((response) => {
+        setDeviceStat(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  };
+  const generateData = (dates: any, dataPoint: any, label: string) => ({
+    labels: dates,
     datasets: [
       {
         label: label,
@@ -57,11 +83,27 @@ function Stat() {
       },
     ],
   });
-  const data_temperature = generateData("Temperature", [1, 2, 3, 4, 5]);
-  const data_pH = generateData("pH", [12, 32, 13, 44, 55]);
-  const data_lamp = generateData("lamp", [12, 32, 13, 44, 55]);
-  const data_co2 = generateData("CO2", [12, 32, 13, 44, 55]);
-  const data_fan = generateData("fan", [12, 32, 13, 44, 55]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      deviceGet();
+    }, 5000); // 5000 milliseconds = 5 seconds
+
+    // Clean up the interval when the component unmounts
+    return () => {
+      clearInterval(interval);
+    };
+    // Fetch data from the API using Axios
+  }, []);
+  const deviceChartData = processDeviceStat(deviceStat);
+  console.log(deviceChartData);
+
+  const data_temperature = generateData(
+    deviceChartData.dates,
+    deviceChartData.Temp,
+    "Temperature"
+  );
+
+  const data_pH = generateData(deviceChartData.dates, deviceChartData.pH, "pH");
 
   return (
     <>
@@ -82,26 +124,6 @@ function Stat() {
           </div>
         </div>
 
-        <div className="row mt-5 justify-content-center">
-          <div className="col-10 graphcard">
-            <h3>Lamp Graph</h3>
-            <Line options={option_lamp} data={data_lamp} />
-          </div>
-        </div>
-        {/* CO2 */}
-        <div className="row mt-5 justify-content-center">
-          <div className="col-10 graphcard">
-            <h3>Fan Graph</h3>
-            <Line options={option_fan} data={data_fan} />
-          </div>
-        </div>
-        {/* Fan */}
-        <div className="row mt-5 justify-content-center">
-          <div className="col-10 graphcard">
-            <h3>CO2 Graph</h3>
-            <Line options={option_co2} data={data_co2} />
-          </div>
-        </div>
         <div className="row">
           <div className="table-content mt-5">
             <table className="table table-primary">
